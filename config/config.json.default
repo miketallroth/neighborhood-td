@@ -5,7 +5,7 @@
         "maxZoom": 18
     },
     "configs": [
-        "config/invaders.json",
+        "config/invaderTypes.json",
         "config/maps.json"
     ]
 }
