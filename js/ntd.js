@@ -13,6 +13,7 @@
 
             var invaderTypes = {};
 
+            // array of current invaders on-screen
             var invaders = [];
 
             window.onload = function() {
@@ -56,6 +57,7 @@
                 pathArr = config.maps[0].path;
                 center = config.maps[0].center;
                 zoom = config.maps[0].zoom;
+                invaderTypes = config.invaderTypes;
 
                 // load the distances in the path array
                 // each entry is the incremental distance from the previous waypoint
@@ -79,16 +81,25 @@
                     .bindPopup('Neighborhood<br/>entry point.')
                     .openPopup();
 
-                document.getElementById('start').onclick = function(e) {
-                    addInvader();
+                // materialize invaderType icons
+                for (var inv in invaderTypes) {
+                    invaderTypes[inv].icon = L.icon({
+                        iconUrl: invaderTypes[inv].iconUrl,
+                        iconSize: L.point(invaderTypes[inv].iconSize)
+                    });
                 }
 
-                invaderTypes.green = {
-                    icon: L.icon({
-                        iconUrl: 'img/120px-Emblem-shamrock.svg.png',
-                        iconSize: L.point(32,32)
-                    })
-                };
+                // capture invaderType names for selection
+                var invaderNames = [];
+                for (var key in invaderTypes) {
+                    invaderNames.push(key);
+                }
+
+                // define onclick action for start button
+                document.getElementById('start').onclick = function(e) {
+                    var invaderName = invaderNames[getRandomInt(0, invaderNames.length)];
+                    addInvader(invaderName);
+                }
 
                 var prev = pathArr[0].loc;
                 var next = pathArr[1].loc;
@@ -96,17 +107,18 @@
             }
 
             function addInvader(type = "green") {
-                // TODO read through map to determine starting prev/nextWaypoints
+                // TODO get starting point(s) from map config
                 var invader = {
-                    color: "green",
-                    speed: 0.004,
+                    speed: 0.001,
                     segProgress: 0,
                     prevWaypoint: 0,
                     nextWaypoint: 1,
                     marker: null
                 };
+                Object.assign(invader, invaderTypes[type]);
+
                 invader.marker = L.marker(pathArr[0].loc, {
-                    icon: invaderTypes.green.icon
+                    icon: invader.icon
                 });
                 invader.marker.addTo(map);
 
