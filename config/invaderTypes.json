@@ -1,0 +1,25 @@
+{
+    "invaderTypes": {
+        "green": {
+            "color": "green",
+            "spawns": null,
+            "speed": 0.001,
+            "iconUrl": "img/120px-Emblem-shamrock.svg.png",
+            "iconSize": [32,32]
+        },
+        "red": {
+            "color": "red",
+            "spawns": ["green"],
+            "speed": 0.0013,
+            "iconUrl": "img/96px-Tango_Style_Mushroom_icon.svg.png",
+            "iconSize": [32,32]
+        },
+        "black": {
+            "color": "black",
+            "spawns": ["red"],
+            "speed": 0.0017,
+            "iconUrl": "img/96px-Emblem-club.svg.png",
+            "iconSize": [32,32]
+        }
+    }
+}

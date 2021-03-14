@@ -1,0 +1,11 @@
+#mapid {
+    float: left;
+    width: 800px;
+    height: 600px;
+}
+#start {
+    float: left;
+    padding: 10px;
+    margin: 10px;
+    background-color: lightgreen;
+}
