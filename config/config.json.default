@@ -1,0 +1,11 @@
+{
+    "tiles": {
+        "serviceUrl": "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=<your api key here>",
+        "attribution": "Maps © <a href=\"http://www.thunderforest.com\">Thunderforest</a>, Data © <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap contributors</a>",
+        "maxZoom": 18
+    },
+    "configs": [
+        "config/invaders.json",
+        "config/maps.json"
+    ]
+}
