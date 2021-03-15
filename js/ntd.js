@@ -9,12 +9,18 @@
             var animId = null;
             var progress;
 
+            var score = 0;
+            var lives = 20;
+
             var invader = {};
 
             var invaderTypes = {};
 
             // array of current invaders on-screen
             var invaders = [];
+
+            // array of towers on-screen
+            var towers = [];
 
             window.onload = function() {
                 // load config files, then run
@@ -104,11 +110,40 @@
                 var prev = pathArr[0].loc;
                 var next = pathArr[1].loc;
                 var done = false;
+
+                addTower();
+
+
+            }
+
+            function addTower(type = "default") {
+
+                var tower = {
+                    loc: [44.31290, -88.345160],
+                    range: 0.050,
+                    rechargeTime: 60,
+                    charge: 0,
+                    marker: null
+                };
+
+                var towerIcon = L.icon({
+                    iconUrl: "img/96px-Jar.svg.png",
+                    iconSize: L.point([32,32])
+                });
+
+                tower.marker = L.marker([44.31290, -88.345160], {
+                    icon: towerIcon
+                });
+                tower.marker.addTo(map);
+
+                // TODO change this to a tower object
+                towers.push(tower);
             }
 
             function addInvader(type = "green") {
                 // TODO get starting point(s) from map config
                 var invader = {
+                    loc: [],
                     speed: 0.001,
                     segProgress: 0,
                     prevWaypoint: 0,
@@ -117,6 +152,7 @@
                 };
                 Object.assign(invader, invaderTypes[type]);
 
+                invader.loc = pathArr[0].loc;
                 invader.marker = L.marker(pathArr[0].loc, {
                     icon: invader.icon
                 });
@@ -137,11 +173,30 @@
                 for (i=0; i<invaders.length; i++) {
                     // skip empty indexes
                     if (invaders[i]) {
-                        newLoc = update(invaders[i]);
+                        newLoc = updateInvader(invaders[i]);
                         if (newLoc == 'finished') {
                             delete invaders[i];
+                            updateLives();
                             continue;
                         }
+                    }
+                }
+
+                var kill;
+                for (i=0; i<towers.length; i++) {
+                    if (towers[i]) {
+                        kill = updateTower(towers[i]);
+                        if (kill !== null) {
+                            invaders[kill].marker.remove();
+                            delete invaders[kill];
+                            updateScore();
+                            continue;
+                        }
+                    }
+                }
+
+                for (i=0; i<invaders.length; i++) {
+                    if (invaders[i]) {
                         render(invaders[i], newLoc);
                     }
                 }
@@ -153,6 +208,50 @@
                 } else {
                     invaders = [];
                 }
+            }
+
+            function updateScore() {
+                score += 1;
+                var el = document.getElementById('score');
+                el.innerText = score;
+            }
+
+            function updateLives() {
+                lives -= 1;
+                var el = document.getElementById('lives');
+                el.innerText = lives;
+            }
+
+            function updateTower(tower) {
+                //console.log(tower);
+
+                tower.charge += 1;
+                if (tower.charge < tower.rechargeTime) {
+                    return null;
+                }
+
+                //console.log('tower charged');
+
+                for (var i=0; i<invaders.length; i++) {
+                    if (invaders[i]) {
+                        //console.log('checking tower against invader', i);
+                        if (checkHit(tower, invaders[i])) {
+                            tower.charge = 0;
+                            return i;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function checkHit(tower, invader) {
+                var d = distance(tower.loc, invader.loc);
+                //console.log('distance', d);
+                if (tower.range > d) {
+                    //console.log('checking', tower.range, d);
+                    return true;
+                }
+                return false;
             }
 
             function selectNextWaypoint(invader, pathArr) {
@@ -170,7 +269,7 @@
                 return Math.floor(Math.random() * (max - min) + min);
             }
 
-            function update(invader) {
+            function updateInvader(invader) {
                 var xy;
 
                 // update state
@@ -193,12 +292,13 @@
                 // calculate incremental segment progress
                 var segDist = pathArr[invader.nextWaypoint].dist[invader.prevWaypoint];
                 xy = interpolate(pathArr[invader.prevWaypoint].loc, pathArr[invader.nextWaypoint].loc, invader.segProgress/segDist);
+                invader.loc = xy;
                 return xy;
             }
 
             function render(invader, xy) {
                 // render
-                invader.marker.setLatLng(xy);
+                invader.marker.setLatLng(invader.loc);
             }
 
             /**
@@ -226,7 +326,7 @@
              * one degree of longitude at 45 latitude is 79 km
              */
             var distance = function(p0, p1) {
-                console.log(p0);
+                //console.log(p0);
                 var kmLat = calcLat();
                 var kmLon = calcLon(p0[0]);
 

@@ -9,3 +9,15 @@
     margin: 10px;
     background-color: lightgreen;
 }
+#score {
+    float: left;
+    padding: 10px;
+    margin: 10px;
+    background-color: lightblue;
+}
+#lives {
+    float: left;
+    padding: 10px;
+    margin: 10px;
+    background-color: lightblue;
+}
